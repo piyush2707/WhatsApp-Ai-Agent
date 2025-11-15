@@ -1,0 +1,129 @@
+{
+  "workflow": {
+    "name": "WhatsApp AI Agent Workflow",
+    "version": "1.0.0",
+    "description": "Automated WhatsApp Business workflow with AI agent integration",
+    "nodes": [
+      {
+        "id": "whatsapp_trigger",
+        "type": "trigger",
+        "name": "WhatsApp Trigger",
+        "platform": "WhatsApp Business",
+        "config": {
+          "trigger_type": "incoming_message",
+          "webhook_enabled": true
+        },
+        "position": {
+          "x": 100,
+          "y": 150
+        }
+      },
+      {
+        "id": "ai_agent",
+        "type": "processor",
+        "name": "AI Agent",
+        "config": {
+          "chat_model": "openai",
+          "memory_enabled": true,
+          "tools_enabled": true
+        },
+        "dependencies": [
+          "openai_chat_model",
+          "simple_memory"
+        ],
+        "position": {
+          "x": 400,
+          "y": 150
+        }
+      },
+      {
+        "id": "openai_chat_model",
+        "type": "model",
+        "name": "OpenAI Chat Model",
+        "config": {
+          "provider": "openai",
+          "model": "gpt-4",
+          "temperature": 0.7,
+          "max_tokens": 2000,
+          "api_key_env": "OPENAI_API_KEY"
+        },
+        "position": {
+          "x": 350,
+          "y": 350
+        }
+      },
+      {
+        "id": "simple_memory",
+        "type": "memory",
+        "name": "Simple Memory",
+        "config": {
+          "type": "buffer",
+          "max_messages": 10,
+          "session_persistence": true
+        },
+        "position": {
+          "x": 550,
+          "y": 350
+        }
+      },
+      {
+        "id": "whatsapp_business_cloud",
+        "type": "action",
+        "name": "WhatsApp Business Cloud",
+        "config": {
+          "action": "send_message",
+          "api_version": "v17.0",
+          "credentials_env": "WHATSAPP_API_TOKEN"
+        },
+        "position": {
+          "x": 700,
+          "y": 150
+        }
+      }
+    ],
+    "connections": [
+      {
+        "from": "whatsapp_trigger",
+        "to": "ai_agent",
+        "type": "data_flow"
+      },
+      {
+        "from": "ai_agent",
+        "to": "openai_chat_model",
+        "type": "model_reference"
+      },
+      {
+        "from": "ai_agent",
+        "to": "simple_memory",
+        "type": "memory_reference"
+      },
+      {
+        "from": "ai_agent",
+        "to": "whatsapp_business_cloud",
+        "type": "data_flow"
+      }
+    ],
+    "environment_variables": [
+      {
+        "name": "OPENAI_API_KEY",
+        "description": "OpenAI API key for chat model",
+        "required": true
+      },
+      {
+        "name": "WHATSAPP_API_TOKEN",
+        "description": "WhatsApp Business Cloud API token",
+        "required": true
+      },
+      {
+        "name": "WHATSAPP_PHONE_NUMBER_ID",
+        "description": "WhatsApp Business phone number ID",
+        "required": true
+      },
+      {
+        "name": "WEBHOOK_VERIFY_TOKEN",
+        "description": "Token for webhook verification",
+        "required": true
+      }
+    ]
+  }
+}
